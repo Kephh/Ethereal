@@ -6,19 +6,20 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 exports.sendMessage = async (req, res) => {
     try {
         const { message, conversationId } = req.body;
-        
+
         // --- STAGE 1: MEDICAL TRIAGE & GRADING ---
         const triageGen = await groq.chat.completions.create({
             messages: [
-                { 
-                    role: 'system', 
+                {
+                    role: 'system',
                     content: `You are a medical triage system. Grade the user's prompt for medical, health, or lifestyle relevancy on a scale of 0-10. 
                     - 10: Specific medical condition/symptom.
                     - 7-9: General health or lifestyle question.
                     - 4-6: Vaguely related to health.
-                    - 0-3: Totally unrelated (engineering, general chat, etc.).
+                    - 3: General queries, no coding/technical questions.   
+                    - 0-2: Totally unrelated specialist questions (engineering, etc.).
                     Also detect if this is an emergency. 
-                    Respond ONLY in JSON: {"score": number, "is_emergency": boolean, "reason": string}` 
+                    Respond ONLY in JSON: {"score": number, "is_emergency": boolean, "reason": string}`
                 },
                 { role: 'user', content: message }
             ],
@@ -27,13 +28,13 @@ exports.sendMessage = async (req, res) => {
         });
 
         const triage = JSON.parse(triageGen.choices[0].message.content);
-        
-        // Relevancy Threshold (Score < 4 = Reject)
-        if (triage.score < 4) {
-            return res.status(200).json({ 
-                success: true, 
+
+        // Relevancy Threshold (Score < 3 = Reject)
+        if (triage.score < 3) {
+            return res.status(200).json({
+                success: true,
                 message: "This question isn't relevant to medical or health context. I am specialized in medical and lifestyle assistance.",
-                isFiltered: true 
+                isFiltered: true
             });
         }
 
@@ -121,7 +122,7 @@ const redisClient = require('../config/redis');
 exports.getConversations = async (req, res) => {
     try {
         const cacheKey = `history:${req.user.id}`;
-        
+
         // Try to get from cache
         if (redisClient) {
             const cachedHistory = await redisClient.get(cacheKey);
