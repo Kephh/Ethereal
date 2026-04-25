@@ -34,20 +34,37 @@ const ChatPage = () => {
 
   const handleDeleteChat = async (e, id) => {
     e.stopPropagation();
+    
+    // Optimistic UI Update
+    const previousHistory = [...history];
+    setHistory(prev => prev.filter(chat => chat._id !== id));
+    
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/chat/history/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
-      if (res.ok) {
-        if (activeConversationId === id) {
-          setActiveConversationId(null);
-          setMessages([{ role: 'assistant', content: 'Hello! I am your Ethereal AI assistant. How can I help you today?' }]);
-        }
-        fetchHistory();
-        setDeletingChatId(null);
+      
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to delete chat');
       }
-    } catch (err) { }
+
+      if (activeConversationId === id) {
+        setActiveConversationId(null);
+        setMessages([{ role: 'assistant', content: 'Hello! I am your Ethereal AI assistant. How can I help you today?' }]);
+      }
+      
+      // Still fetch history to ensure sync with server (and other tabs)
+      fetchHistory();
+      setDeletingChatId(null);
+    } catch (err) {
+      console.error('Delete error:', err);
+      // Rollback on error
+      setHistory(previousHistory);
+      setError(err.message || 'Failed to delete chat');
+      setDeletingChatId(null);
+    }
   };
 
   const fetchHistory = async () => {

@@ -161,6 +161,12 @@ exports.deleteConversation = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Conversation not found' });
         }
         await Conversation.findByIdAndDelete(req.params.id);
+
+        // Invalidate Cache
+        if (redisClient) {
+            await redisClient.del(`history:${req.user.id}`);
+        }
+
         res.status(200).json({ success: true, message: 'Conversation deleted' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
