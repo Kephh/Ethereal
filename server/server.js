@@ -108,7 +108,10 @@ const limiter = rateLimit({
     store: redisClient ? new RedisStore({
         // Fix: Use spread properly for Redis Cloud compatibility
         sendCommand: async (...args) => {
-            const res = await redisClient.call(...args);
+            if (!redisClient) return;
+            // node-redis v5+ sendCommand takes an array of strings
+            const flattenedArgs = Array.isArray(args[0]) ? args[0] : args;
+            const res = await redisClient.sendCommand(flattenedArgs.map(String));
             return res;
         },
     }) : undefined
@@ -129,8 +132,8 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 
 // API Status Route
 app.get('/', (req, res) => {
-    res.json({ 
-        success: true, 
+    res.json({
+        success: true,
         message: 'Ethereal AI API is running',
         environment: process.env.NODE_ENV,
         version: '1.0.0'

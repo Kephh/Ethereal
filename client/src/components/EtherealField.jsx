@@ -70,7 +70,7 @@ const EtherealField = () => {
         const connect = () => {
             const lineColor = getComputedStyle(document.body).getPropertyValue('--line-color').trim() || 'rgba(139, 92, 246, 0.4)';
             const isLight = document.body.classList.contains('light-mode');
-            
+
             for (let a = 0; a < particles.length; a++) {
                 for (let b = a; b < particles.length; b++) {
                     let dx = particles[a].x - particles[b].x;

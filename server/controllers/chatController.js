@@ -1,5 +1,7 @@
 const Groq = require('groq-sdk');
 const Conversation = require('../models/Conversation');
+const redisClient = require('../config/redis');
+
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -118,13 +120,10 @@ exports.sendMessage = async (req, res) => {
         res.status(500).json({ success: false, error: 'Medical AI Error', message: err.message });
     }
 };
-
-const redisClient = require('../config/redis');
-
 exports.getConversations = async (req, res) => {
     try {
         const cacheKey = `history:${req.user.id}`;
-
+        console.log("getConversation called", req.user.id);
         // Try to get from cache
         if (redisClient) {
             const cachedHistory = await redisClient.get(cacheKey);
@@ -137,7 +136,9 @@ exports.getConversations = async (req, res) => {
 
         // Save to cache for 5 minutes
         if (redisClient) {
-            await redisClient.setex(cacheKey, 300, JSON.stringify(conversations));
+            await redisClient.set(cacheKey, JSON.stringify(conversations), {
+                EX: 300
+            });
         }
 
         res.status(200).json({ success: true, conversations, source: 'db' });

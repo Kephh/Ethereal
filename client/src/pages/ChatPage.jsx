@@ -52,6 +52,7 @@ const ChatPage = () => {
 
   const fetchHistory = async () => {
     try {
+      console.log(`${import.meta.env.VITE_API_URL}/chat/history`);
       const res = await fetch(`${import.meta.env.VITE_API_URL}/chat/history`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
@@ -78,9 +79,9 @@ const ChatPage = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           message: input,
-          conversationId: activeConversationId 
+          conversationId: activeConversationId
         })
       });
 
@@ -119,7 +120,7 @@ const ChatPage = () => {
             if (dataStr === '[DONE]') break;
             try {
               const data = JSON.parse(dataStr);
-              
+
               if (data.conversationId && isFirstChunk) {
                 setActiveConversationId(data.conversationId);
                 isFirstChunk = false;
@@ -150,7 +151,7 @@ const ChatPage = () => {
 
       {/* Mobile Sidebar Overlay */}
       {isMobile && isSidebarOpen && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -168,12 +169,12 @@ const ChatPage = () => {
             exit={{ x: -300 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="glass-panel sidebar"
-            style={{ 
-              width: isMobile ? '280px' : '280px', 
-              margin: isMobile ? '0' : '12px', 
-              marginRight: isMobile ? '0' : '6px', 
-              padding: '20px', 
-              display: 'flex', 
+            style={{
+              width: isMobile ? '280px' : '280px',
+              margin: isMobile ? '0' : '12px',
+              marginRight: isMobile ? '0' : '6px',
+              padding: '20px',
+              display: 'flex',
               flexDirection: 'column',
               position: isMobile ? 'fixed' : 'relative',
               left: 0,
@@ -186,10 +187,10 @@ const ChatPage = () => {
           >
             <div className="sidebar-header" style={{ marginBottom: '30px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ 
-                  width: '36px', 
-                  height: '36px', 
-                  borderRadius: '50%', 
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
                   background: 'linear-gradient(45deg, var(--accent-primary), var(--accent-secondary))',
                   overflow: 'hidden',
                   display: 'flex',
@@ -209,9 +210,9 @@ const ChatPage = () => {
                 </div>
               </div>
               {isMobile && (
-                <X 
-                  size={20} 
-                  onClick={() => setSidebarOpen(false)} 
+                <X
+                  size={20}
+                  onClick={() => setSidebarOpen(false)}
                   style={{ cursor: 'pointer', color: 'var(--text-dim)', transition: '0.2s' }}
                   onMouseOver={(e) => e.target.style.color = 'white'}
                   onMouseOut={(e) => e.target.style.color = 'var(--text-dim)'}
@@ -219,12 +220,12 @@ const ChatPage = () => {
               )}
             </div>
 
-            <button 
+            <button
               onClick={() => {
                 setActiveConversationId(null);
                 setMessages([{ role: 'assistant', content: 'Hello! I am your Ethereal AI assistant. How can I help you today?' }]);
               }}
-              className="glass-panel new-chat-btn" 
+              className="glass-panel new-chat-btn"
               style={{ padding: '12px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', color: 'white', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', width: '100%' }}
             >
               <Plus size={18} /> New Chat
@@ -233,18 +234,18 @@ const ChatPage = () => {
             <div className="history" style={{ flex: 1, overflowY: 'auto' }}>
               <p style={{ color: 'var(--text-dim)', fontSize: '0.8rem', marginBottom: '10px' }}>Recent Chats</p>
               {history.map(chat => (
-                <div 
+                <div
                   key={chat._id}
                   onClick={() => {
                     setActiveConversationId(chat._id);
                     setMessages(chat.messages);
                   }}
-                  className={`history-item ${activeConversationId === chat._id ? 'active' : ''}`} 
-                  style={{ 
-                    padding: '10px', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer', 
-                    background: activeConversationId === chat._id ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', 
+                  className={`history-item ${activeConversationId === chat._id ? 'active' : ''}`}
+                  style={{
+                    padding: '10px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    background: activeConversationId === chat._id ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)',
                     fontSize: '0.9rem',
                     marginBottom: '5px',
                     border: activeConversationId === chat._id ? '1px solid var(--border-glass)' : '1px solid transparent',
@@ -257,23 +258,23 @@ const ChatPage = () => {
                     <MessageSquare size={14} style={{ marginRight: '8px', flexShrink: 0 }} />
                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{chat.title}</span>
                   </div>
-                  
+
                   {deletingChatId === chat._id ? (
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
-                      <Check 
-                        size={14} 
-                        style={{ color: '#00e5ff', cursor: 'pointer' }} 
+                      <Check
+                        size={14}
+                        style={{ color: '#00e5ff', cursor: 'pointer' }}
                         onClick={(e) => handleDeleteChat(e, chat._id)}
                       />
-                      <X 
-                        size={14} 
-                        style={{ color: 'white', cursor: 'pointer' }} 
+                      <X
+                        size={14}
+                        style={{ color: 'white', cursor: 'pointer' }}
                         onClick={(e) => { e.stopPropagation(); setDeletingChatId(null); }}
                       />
                     </div>
                   ) : (
-                    <Trash2 
-                      size={14} 
+                    <Trash2
+                      size={14}
                       className="delete-icon"
                       onClick={(e) => { e.stopPropagation(); setDeletingChatId(chat._id); }}
                       style={{ color: '#ff4d4d', transition: '0.2s', opacity: 0.6, cursor: 'pointer' }}
@@ -303,11 +304,11 @@ const ChatPage = () => {
       </AnimatePresence>
 
       {/* Main Chat Area */}
-      <div className="chat-main" style={{ 
-        flex: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        margin: isMobile ? '8px' : '12px', 
+      <div className="chat-main" style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        margin: isMobile ? '8px' : '12px',
         marginLeft: (!isMobile && isSidebarOpen) ? '6px' : (isMobile ? '8px' : '12px'),
         height: isMobile ? '100vh' : 'auto',
         overflow: 'hidden'
