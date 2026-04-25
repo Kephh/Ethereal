@@ -84,7 +84,8 @@ app.use((err, req, res, next) => {
     res.status(500).json({
         success: false,
         error: 'Server Error',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'An internal error occurred. Check server logs with Request ID: ' + req.id
+        message: err.message, // Temporarily showing error for debugging Render deploy
+        requestId: req.id
     });
 });
 
