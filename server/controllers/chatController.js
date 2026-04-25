@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Groq = require('groq-sdk');
 const Conversation = require('../models/Conversation');
 const redisClient = require('../config/redis');
@@ -156,11 +157,22 @@ exports.getConversationById = async (req, res) => {
 };
 exports.deleteConversation = async (req, res) => {
     try {
-        const conversation = await Conversation.findOne({ _id: req.params.id, user: req.user.id });
+        const { id } = req.params;
+        
+        // Use findById first to distinguish between "not found" and "unauthorized"
+        const conversation = await Conversation.findById(id);
+        
         if (!conversation) {
+            console.error(`Delete failed: Conversation ${id} not found`);
             return res.status(404).json({ success: false, message: 'Conversation not found' });
         }
-        await Conversation.findByIdAndDelete(req.params.id);
+
+        if (conversation.user.toString() !== req.user.id) {
+            console.error(`Delete failed: User ${req.user.id} not authorized for ${id}`);
+            return res.status(403).json({ success: false, message: 'Not authorized to delete this conversation' });
+        }
+
+        await Conversation.findByIdAndDelete(id);
 
         // Invalidate Cache
         if (redisClient) {
@@ -169,6 +181,7 @@ exports.deleteConversation = async (req, res) => {
 
         res.status(200).json({ success: true, message: 'Conversation deleted' });
     } catch (err) {
+        console.error('Delete error:', err);
         res.status(500).json({ success: false, message: err.message });
     }
 };
