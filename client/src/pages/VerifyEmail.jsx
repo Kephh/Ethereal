@@ -25,7 +25,7 @@ const VerifyEmail = () => {
   }, [token, navigate]);
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '20px' }}>
+    <div style={{ height: '100dvh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '20px', overflow: 'hidden' }}>
       <EtherealField />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}

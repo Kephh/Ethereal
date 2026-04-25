@@ -87,7 +87,16 @@ const SettingsPage = () => {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: isMobile ? '10px' : '20px' }}>
+    <div style={{ 
+      height: '100dvh', 
+      width: '100vw', 
+      display: 'flex', 
+      alignItems: isMobile ? 'flex-start' : 'center', 
+      justifyContent: 'center', 
+      position: 'relative', 
+      padding: isMobile ? '15px 10px' : '20px',
+      overflow: 'hidden'
+    }}>
       <EtherealField />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -97,13 +106,14 @@ const SettingsPage = () => {
           padding: isMobile ? '20px' : '40px', 
           width: '95%', 
           maxWidth: '850px', 
-          height: isMobile ? 'auto' : '650px', 
-          maxHeight: '95vh',
+          height: isMobile ? 'calc(100% - 20px)' : '650px', 
+          maxHeight: isMobile ? '100%' : '95vh',
           zIndex: 1, 
           display: 'flex', 
           flexDirection: isMobile ? 'column' : 'row',
           gap: isMobile ? '20px' : '30px',
-          overflowY: isMobile ? 'auto' : 'hidden'
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         <div style={{ 
