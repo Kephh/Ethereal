@@ -129,7 +129,8 @@ const EtherealField = () => {
                 top: 0,
                 left: 0,
                 zIndex: -1,
-                background: 'var(--bg-deep)'
+                background: 'var(--bg-deep)',
+                pointerEvents: 'none'
             }}
         />
     );

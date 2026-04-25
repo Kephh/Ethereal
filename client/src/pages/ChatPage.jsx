@@ -146,7 +146,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="app-container" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+    <div className="app-container" style={{ display: 'flex', height: '100dvh', width: '100vw', overflow: 'hidden' }}>
       <EtherealField />
 
       {/* Mobile Sidebar Overlay */}
@@ -181,7 +181,7 @@ const ChatPage = () => {
               top: 0,
               bottom: 0,
               zIndex: 100,
-              height: isMobile ? '100vh' : 'calc(100vh - 24px)',
+              height: isMobile ? '100dvh' : 'calc(100vh - 24px)',
               borderRadius: isMobile ? '0 20px 20px 0' : '20px'
             }}
           >
@@ -310,7 +310,7 @@ const ChatPage = () => {
         flexDirection: 'column',
         margin: isMobile ? '8px' : '12px',
         marginLeft: (!isMobile && isSidebarOpen) ? '6px' : (isMobile ? '8px' : '12px'),
-        height: isMobile ? '100vh' : 'auto',
+        height: isMobile ? 'calc(100% - 16px)' : 'auto',
         overflow: 'hidden'
       }}>
         <header className="glass-panel" style={{ padding: isMobile ? '12px 15px' : '15px 25px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

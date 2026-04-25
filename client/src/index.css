@@ -137,8 +137,11 @@ body.light-mode .new-chat-btn:hover {
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
-  body {
-    overflow: auto; /* Allow scrolling if content overflows */
+  html, body, #root {
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
   }
 
   canvas {
