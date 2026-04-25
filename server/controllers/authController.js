@@ -24,6 +24,10 @@ exports.register = async (req, res) => {
 
         const { username, email, password } = req.body;
 
+        if (!password) {
+            return res.status(400).json({ success: false, message: 'Please provide a password' });
+        }
+
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ success: false, message: 'User already exists' });
