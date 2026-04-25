@@ -32,8 +32,11 @@ app.use(helmet({
         }
     } : false,
 }));
+// Clean CLIENT_URL to remove trailing slash (prevents common CORS issues)
+const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, "");
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: clientUrl,
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' })); // Limit body size for large profile photos
