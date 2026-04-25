@@ -18,6 +18,9 @@ require('./config/passport')(passport);
 
 const app = express();
 
+// Trust Proxy for Render/Vercel
+app.set('trust proxy', 1);
+
 // Request Tracing
 app.use((req, res, next) => {
     req.id = uuidv4();
