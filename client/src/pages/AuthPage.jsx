@@ -13,6 +13,7 @@ const AuthPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -114,22 +115,40 @@ const AuthPage = () => {
         </div>
 
         <button
-          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}
+          onClick={() => {
+            setGoogleLoading(true);
+            window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+          }}
+          disabled={loading || googleLoading}
           style={{ 
             background: 'rgba(255,255,255,0.05)', 
             border: '1px solid var(--border-glass)', 
             padding: '12px', 
             color: 'white', 
             borderRadius: '8px', 
-            cursor: 'pointer', 
+            cursor: (loading || googleLoading) ? 'not-allowed' : 'pointer', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center', 
-            gap: '10px' 
+            gap: '10px',
+            opacity: (loading || googleLoading) ? 0.7 : 1
           }}
         >
-          <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" style={{ width: '18px' }} />
-          Continue with Google
+          {googleLoading ? (
+            <>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }}
+              />
+              Connecting...
+            </>
+          ) : (
+            <>
+              <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" style={{ width: '18px' }} />
+              Continue with Google
+            </>
+          )}
         </button>
 
         <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-dim)' }}>
