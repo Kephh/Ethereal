@@ -8,7 +8,6 @@ const logger = require('./config/logger');
 const rateLimit = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const redisClient = require('./config/redis');
-const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 
 const app = express();
@@ -38,7 +37,27 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' })); // Limit body size for large profile photos
-app.use(mongoSanitize()); // Prevent NoSQL Injection
+
+// Safe NoSQL Sanitize Middleware (Express 5 Compatible)
+const sanitize = (obj) => {
+    if (obj instanceof Object) {
+        for (const key in obj) {
+            if (key.startsWith('$') || key.includes('.')) {
+                delete obj[key];
+            } else if (obj[key] instanceof Object) {
+                sanitize(obj[key]);
+            }
+        }
+    }
+    return obj;
+};
+
+app.use((req, res, next) => {
+    sanitize(req.body);
+    sanitize(req.params);
+    next();
+});
+
 app.use(hpp()); // Prevent HTTP Parameter Pollution
 
 // Rate Limiting
@@ -84,8 +103,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({
         success: false,
         error: 'Server Error',
-        message: err.message, // Temporarily showing error for debugging Render deploy
-        requestId: req.id
+        message: process.env.NODE_ENV === 'development' ? err.message : 'An internal error occurred. Request ID: ' + req.id
     });
 });
 
