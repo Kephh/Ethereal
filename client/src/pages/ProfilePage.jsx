@@ -93,20 +93,27 @@ const ProfilePage = () => {
       justifyContent: 'center', 
       position: 'relative', 
       padding: isMobile ? '15px 10px' : '20px',
-      overflowY: 'auto',
-      WebkitOverflowScrolling: 'touch'
+      overflow: 'hidden'
     }}>
       <EtherealField />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="glass-panel"
-        style={{ padding: isMobile ? '20px' : '40px', width: '95%', maxWidth: '550px', zIndex: 1, position: 'relative' }}
+        style={{ 
+          padding: isMobile ? '15px' : '40px', 
+          width: '95%', 
+          maxWidth: '550px', 
+          zIndex: 1, 
+          position: 'relative',
+          maxHeight: isMobile ? 'calc(100% - 30px)' : 'auto',
+          overflowY: 'auto' 
+        }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isMobile ? '20px' : '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <ArrowLeft onClick={() => navigate('/')} style={{ cursor: 'pointer' }} />
-            <h2>Profile</h2>
+            <h2 style={{ fontSize: isMobile ? '1.1rem' : '1.5rem' }}>Profile</h2>
           </div>
           {!isEditing ? (
             <button 
@@ -137,11 +144,11 @@ const ProfilePage = () => {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '30px' }}>
           <div style={{ position: 'relative' }}>
             <div style={{ 
-              width: '120px', 
-              height: '120px', 
+              width: isMobile ? '80px' : '120px', 
+              height: isMobile ? '80px' : '120px', 
               borderRadius: '50%', 
               background: 'linear-gradient(45deg, var(--accent-primary), var(--accent-secondary))', 
-              marginBottom: '15px', 
+              marginBottom: isMobile ? '10px' : '15px', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
@@ -179,57 +186,57 @@ const ProfilePage = () => {
             <input 
               value={editData.username}
               onChange={(e) => setEditData(prev => ({ ...prev, username: e.target.value }))}
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', padding: '8px 15px', color: 'white', borderRadius: '8px', outline: 'none', textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', padding: '5px 10px', color: 'white', borderRadius: '8px', outline: 'none', textAlign: 'center', fontSize: '1rem', fontWeight: 'bold' }}
             />
           ) : (
-            <h3 style={{ fontSize: '1.5rem' }}>{user?.username}</h3>
+            <h3 style={{ fontSize: isMobile ? '1.2rem' : '1.5rem' }}>{user?.username}</h3>
           )}
-          <p style={{ color: 'var(--accent-secondary)', fontSize: '0.9rem', fontWeight: 'bold', marginTop: '5px' }}>{user?.role?.toUpperCase()}</p>
+          <p style={{ color: 'var(--accent-secondary)', fontSize: '0.8rem', fontWeight: 'bold', marginTop: '2px' }}>{user?.role?.toUpperCase()}</p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginBottom: '8px' }}>BIO</p>
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: '5px' }}>BIO</p>
             {isEditing ? (
               <textarea 
                 value={editData.bio}
                 onChange={(e) => setEditData(prev => ({ ...prev, bio: e.target.value }))}
-                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', padding: '12px', color: 'white', borderRadius: '8px', outline: 'none', minHeight: '80px', resize: 'none' }}
+                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', padding: '8px', color: 'white', borderRadius: '8px', outline: 'none', minHeight: '60px', resize: 'none', fontSize: '0.9rem' }}
               />
             ) : (
-              <p style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>{user?.bio || 'No bio provided.'}</p>
+              <p style={{ fontSize: isMobile ? '0.85rem' : '0.95rem', lineHeight: '1.4' }}>{user?.bio || 'No bio provided.'}</p>
             )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <Mail size={18} color="var(--text-dim)" />
+            <Mail size={16} color="var(--text-dim)" />
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>EMAIL ADDRESS</p>
-              <p>{user?.email}</p>
+              <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>EMAIL ADDRESS</p>
+              <p style={{ fontSize: '0.9rem' }}>{user?.email}</p>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <Calendar size={18} color="var(--text-dim)" />
+            <Calendar size={16} color="var(--text-dim)" />
             <div>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>MEMBER SINCE</p>
-              <p>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'April 2026'}</p>
+              <p style={{ fontSize: '0.65rem', color: 'var(--text-dim)' }}>MEMBER SINCE</p>
+              <p style={{ fontSize: '0.9rem' }}>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'April 2026'}</p>
             </div>
           </div>
         </div>
 
         {/* Account Management Section */}
-        <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid var(--border-glass)', display: 'flex', gap: '15px' }}>
+        <div style={{ marginTop: isMobile ? '20px' : '40px', paddingTop: isMobile ? '10px' : '20px', borderTop: '1px solid var(--border-glass)', display: 'flex', gap: '10px' }}>
           <button 
             onClick={() => setShowConfirm('deactivate')}
-            style={{ flex: 1, background: 'transparent', border: '1px solid var(--text-dim)', padding: '10px', color: 'var(--text-dim)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.85rem' }}
+            style={{ flex: 1, background: 'transparent', border: '1px solid var(--text-dim)', padding: '8px', color: 'var(--text-dim)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.8rem' }}
           >
-            <PowerOff size={16} /> Deactivate
+            <PowerOff size={14} /> Deactivate
           </button>
           <button 
             onClick={() => setShowConfirm('delete')}
-            style={{ flex: 1, background: 'transparent', border: '1px solid #ff4d4d', padding: '10px', color: '#ff4d4d', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.85rem' }}
+            style={{ flex: 1, background: 'transparent', border: '1px solid #ff4d4d', padding: '8px', color: '#ff4d4d', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.8rem' }}
           >
-            <Trash2 size={16} /> Delete Account
+            <Trash2 size={14} /> Delete Account
           </button>
         </div>
 
