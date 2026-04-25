@@ -16,8 +16,8 @@ exports.sendMessage = async (req, res) => {
                     - 10: Specific medical condition/symptom.
                     - 7-9: General health or lifestyle question.
                     - 4-6: Vaguely related to health.
-                    - 3: General queries, no coding/technical questions.   
-                    - 0-2: Totally unrelated specialist questions (engineering, etc.).
+                    - 3: General lifestyle queries.   
+                    - 0-2: Totally unrelated specialist questions (engineering, coding/technical questions, etc.).
                     Also detect if this is an emergency. 
                     Respond ONLY in JSON: {"score": number, "is_emergency": boolean, "reason": string}`
                 },
