@@ -10,6 +10,8 @@ const generateToken = (id) => {
     });
 };
 
+exports.generateToken = generateToken;
+
 exports.register = async (req, res) => {
     try {
         // Check if database is connected

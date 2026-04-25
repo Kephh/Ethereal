@@ -10,7 +10,8 @@ const {
     deactivateAccount,
     verifyEmail,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    generateToken
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -34,10 +35,8 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback', 
     passport.authenticate('google', { failureRedirect: '/auth' }),
     (req, res) => {
-        // Successful authentication, redirect to chat.
-        // In a real app, you might want to send a token here if using JWT
-        // For simplicity, we redirect to chat. The frontend can then call /me to get user info.
-        res.redirect('/chat');
+        const token = generateToken(req.user._id);
+        res.redirect(`${process.env.CLIENT_URL}/auth?token=${token}`);
     }
 );
 

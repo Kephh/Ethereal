@@ -13,6 +13,15 @@ const AuthPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    if (token) {
+      localStorage.setItem('token', token);
+      window.location.href = '/';
+    }
+  }, []);
+
   const handleSubmit = async () => {
     setError('');
     try {
