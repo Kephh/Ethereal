@@ -9,6 +9,11 @@ const rateLimit = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const redisClient = require('./config/redis');
 const hpp = require('hpp');
+const passport = require('passport');
+const session = require('express-session');
+
+// Passport Config
+require('./config/passport')(passport);
 
 const app = express();
 
@@ -18,6 +23,17 @@ app.use((req, res, next) => {
     res.setHeader('X-Request-ID', req.id);
     next();
 });
+
+// Express Session
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'secret',
+    resave: false,
+    saveUninitialized: false
+}));
+
+// Passport Middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Middleware
 app.use(helmet({

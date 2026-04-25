@@ -63,6 +63,15 @@ const AuthPage = () => {
           style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-glass)', padding: '12px', color: 'white', borderRadius: '8px', outline: 'none' }}
           onChange={(e) => setPassword(e.target.value)}
         />
+
+        {!isRegistering && (
+          <p 
+            onClick={() => navigate('/forgot-password')}
+            style={{ fontSize: '0.8rem', color: 'var(--text-dim)', textAlign: 'right', marginTop: '-10px', cursor: 'pointer' }}
+          >
+            Forgot Password?
+          </p>
+        )}
         
         {error && (
           <div style={{ color: '#ff4d4d', fontSize: '0.85rem', textAlign: 'center', background: 'rgba(255, 77, 77, 0.1)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255, 77, 77, 0.2)' }}>
@@ -75,6 +84,31 @@ const AuthPage = () => {
           style={{ background: 'var(--accent-primary)', border: 'none', padding: '14px', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
         >
           {isRegistering ? 'Sign Up' : 'Login'}
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '10px 0' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-glass)' }}></div>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>OR</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-glass)' }}></div>
+        </div>
+
+        <button
+          onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}
+          style={{ 
+            background: 'rgba(255,255,255,0.05)', 
+            border: '1px solid var(--border-glass)', 
+            padding: '12px', 
+            color: 'white', 
+            borderRadius: '8px', 
+            cursor: 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            gap: '10px' 
+          }}
+        >
+          <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" style={{ width: '18px' }} />
+          Continue with Google
         </button>
 
         <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-dim)' }}>
