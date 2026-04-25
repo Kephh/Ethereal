@@ -52,22 +52,26 @@ exports.sendMessage = async (req, res) => {
 
         RULES (Indian Ethical Compliance):
         1. Answer medical, health, or lifestyle questions for educational purposes only.
-        2. EMERGENCIES: If an emergency is detected, START the response with: "⚠️ POTENTIAL EMERGENCY: Please immediately dial 102 (Ambulance) or 108 (Emergency) and proceed to the nearest hospital." Stop detailed advice and focus on immediate safety.
+        2. EMERGENCIES: If an emergency is detected, START the response with: "### 🚨 POTENTIAL EMERGENCY\n**Please immediately dial 102 (Ambulance) or 108 (Emergency) and proceed to the nearest hospital.**\n\n---"
         3. DOSAGE: NEVER provide dosages for prescription (Schedule H/H1) drugs. For OTC or supplements, provide ONLY general ranges and emphasize: "Consult a pharmacist or doctor for exact dosage."
         4. DATA PRIVACY: Remind users to keep their health data private as per the DPDP Act 2023.
-        5. STRUCTURE (RAG-style):
-           [Medical Analysis]
-           Triage Score: ${triage.score}/10
-           Status: ${triage.is_emergency ? "🚨 EMERGENCY" : "Routine Inquiry"}
-           Context: (Brief summary)
+        5. STRUCTURE (Use Markdown):
+           ### 🩺 Medical Analysis
+           - **Triage Score**: ${triage.score}/10
+           - **Status**: ${triage.is_emergency ? "EMERGENCY" : "Routine Inquiry"}
+           - **Context**: (Brief summary)
 
-           [Educational Advice]
-           (Provide health/lifestyle information)
+           ---
 
-           [Legal & Safety Note]
+           ### 💡 Educational Advice
+           (Provide health/lifestyle information using bullet points where possible)
+
+           ---
+
+           ### ⚖️ Legal & Safety Note
            - Not a substitute for a professional diagnosis.
            - This tool is for informational purposes under Indian Digital Health guidelines.
-           Disclaimer: Please consult a Registered Medical Practitioner (RMP) for professional diagnosis.`;
+           - **Disclaimer**: Please consult a Registered Medical Practitioner (RMP) for professional diagnosis.`;
 
         const chatMessages = [
             { role: 'system', content: medicalSystemPrompt },

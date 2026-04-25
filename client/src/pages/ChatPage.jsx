@@ -4,6 +4,8 @@ import { MessageSquare, LogOut, Send, Menu, Plus, User, Settings, PieChart, Tras
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import EtherealField from '../components/EtherealField';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const ChatPage = () => {
   const { user, logout } = useAuth();
@@ -336,7 +338,11 @@ const ChatPage = () => {
                 fontSize: isMobile ? '0.9rem' : '1rem'
               }}
             >
-              {msg.content}
+              <div className="markdown-container">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {msg.content}
+                </ReactMarkdown>
+              </div>
             </motion.div>
           ))}
         </div>

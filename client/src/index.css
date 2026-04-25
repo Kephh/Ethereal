@@ -153,3 +153,56 @@ body.light-mode .new-chat-btn:hover {
     width: 0px; /* Hide scrollbars on mobile */
   }
 }
+
+/* Markdown Rendering Styles */
+.markdown-container {
+  word-break: break-word;
+}
+
+.markdown-container h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--accent-secondary);
+  border-left: 3px solid var(--accent-primary);
+  padding-left: 10px;
+  letter-spacing: 0.5px;
+}
+
+.markdown-container p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.markdown-container ul, .markdown-container ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-container li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-container strong {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.markdown-container hr {
+  border: none;
+  border-top: 1px solid var(--border-glass);
+  margin: 1.5rem 0;
+  opacity: 0.5;
+}
+
+.markdown-container code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+/* Specific Medical Accents */
+.markdown-container h3:first-of-type {
+  margin-top: 0;
+}
