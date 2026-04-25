@@ -32,11 +32,21 @@ app.use(helmet({
         }
     } : false,
 }));
-// Clean CLIENT_URL to remove trailing slash (prevents common CORS issues)
-const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, "");
+// Support multiple origins (comma-separated in CLIENT_URL)
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+    .split(',')
+    .map(origin => origin.trim().replace(/\/$/, ""));
 
 app.use(cors({
-    origin: clientUrl,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.error(`CORS Blocked: ${origin} not in [${allowedOrigins.join(', ')}]`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 app.use(express.json({ limit: '10mb' })); // Limit body size for large profile photos
