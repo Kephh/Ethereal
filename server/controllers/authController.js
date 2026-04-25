@@ -59,6 +59,7 @@ exports.register = async (req, res) => {
                 message: 'Registration successful. Please check your email to verify your account.'
             });
         } catch (err) {
+            console.error('Registration Email Error:', err);
             user.verificationToken = undefined;
             await user.save();
             return res.status(500).json({ success: false, message: 'Email could not be sent' });
@@ -221,6 +222,7 @@ exports.forgotPassword = async (req, res) => {
 
             res.status(200).json({ success: true, message: 'Email sent' });
         } catch (err) {
+            console.error('Forgot Password Email Error:', err);
             user.resetPasswordToken = undefined;
             user.resetPasswordExpire = undefined;
             await user.save();
