@@ -11,7 +11,7 @@ const redisClient = require('./config/redis');
 const hpp = require('hpp');
 const passport = require('passport');
 const session = require('express-session');
-const ConnectRedis = require('connect-redis').default;
+const { RedisStore: ConnectRedis } = require('connect-redis');
 
 // Passport Config
 require('./config/passport')(passport);
