@@ -6,44 +6,75 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 exports.sendMessage = async (req, res) => {
     try {
         const { message, conversationId } = req.body;
-        let conversation;
+        
+        // --- STAGE 1: MEDICAL TRIAGE & GRADING ---
+        const triageGen = await groq.chat.completions.create({
+            messages: [
+                { 
+                    role: 'system', 
+                    content: `You are a medical triage system. Grade the user's prompt for medical, health, or lifestyle relevancy on a scale of 0-10. 
+                    - 10: Specific medical condition/symptom.
+                    - 7-9: General health or lifestyle question.
+                    - 4-6: Vaguely related to health.
+                    - 0-3: Totally unrelated (engineering, general chat, etc.).
+                    Also detect if this is an emergency. 
+                    Respond ONLY in JSON: {"score": number, "is_emergency": boolean, "reason": string}` 
+                },
+                { role: 'user', content: message }
+            ],
+            model: 'llama-3.3-70b-versatile',
+            response_format: { type: "json_object" }
+        });
 
+        const triage = JSON.parse(triageGen.choices[0].message.content);
+        
+        // Relevancy Threshold (Score < 4 = Reject)
+        if (triage.score < 4) {
+            return res.status(200).json({ 
+                success: true, 
+                message: "This question isn't relevant to medical or health context. I am specialized in medical and lifestyle assistance.",
+                isFiltered: true 
+            });
+        }
+
+        // --- STAGE 2: STRUCTURED MEDICAL RESPONSE ---
+        let conversation;
         if (conversationId) {
             conversation = await Conversation.findOne({ _id: conversationId, user: req.user.id });
-            if (!conversation) {
-                return res.status(404).json({ success: false, message: 'Conversation not found or access denied' });
-            }
         } else {
             conversation = await Conversation.create({ user: req.user.id, messages: [] });
+            // Generate title
+            conversation.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
         }
 
-        // Generate title for new conversation based on first query
-        if (conversation.messages.length === 0) {
-            try {
-                const titleGen = await groq.chat.completions.create({
-                    messages: [
-                        { role: 'system', content: 'Summarize the user query into a 2-3 word title. Return only the title text.' },
-                        { role: 'user', content: message }
-                    ],
-                    model: 'llama-3.3-70b-versatile',
-                });
-                conversation.title = titleGen.choices[0].message.content.replace(/["']/g, '').trim();
-            } catch (titleErr) {
-                // Fallback to truncated message if title generation fails
-                conversation.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
-            }
-        }
+        const medicalSystemPrompt = `You are an Ethereal Medical AI (Educational Assistant).
+        IMPORTANT: You are NOT a Registered Medical Practitioner (RMP) in India. This conversation does not constitute a doctor-patient relationship.
 
-        // Add user message to history
-        conversation.messages.push({ role: 'user', content: message });
+        RULES (Indian Ethical Compliance):
+        1. Answer medical, health, or lifestyle questions for educational purposes only.
+        2. EMERGENCIES: If an emergency is detected, START the response with: "⚠️ POTENTIAL EMERGENCY: Please immediately dial 102 (Ambulance) or 108 (Emergency) and proceed to the nearest hospital." Stop detailed advice and focus on immediate safety.
+        3. DOSAGE: NEVER provide dosages for prescription (Schedule H/H1) drugs. For OTC or supplements, provide ONLY general ranges and emphasize: "Consult a pharmacist or doctor for exact dosage."
+        4. DATA PRIVACY: Remind users to keep their health data private as per the DPDP Act 2023.
+        5. STRUCTURE (RAG-style):
+           [Medical Analysis]
+           Triage Score: ${triage.score}/10
+           Status: ${triage.is_emergency ? "🚨 EMERGENCY" : "Routine Inquiry"}
+           Context: (Brief summary)
 
-        // Prepare messages for Groq
-        const chatMessages = conversation.messages.map(m => ({
-            role: m.role,
-            content: m.content
-        }));
+           [Educational Advice]
+           (Provide health/lifestyle information)
 
-        // Stream from Groq
+           [Legal & Safety Note]
+           - Not a substitute for a professional diagnosis.
+           - This tool is for informational purposes under Indian Digital Health guidelines.
+           Disclaimer: Please consult a Registered Medical Practitioner (RMP) for professional diagnosis.`;
+
+        const chatMessages = [
+            { role: 'system', content: medicalSystemPrompt },
+            ...conversation.messages.map(m => ({ role: m.role, content: m.content })),
+            { role: 'user', content: message }
+        ];
+
         const stream = await groq.chat.completions.create({
             messages: chatMessages,
             model: 'llama-3.3-70b-versatile',
@@ -54,8 +85,7 @@ exports.sendMessage = async (req, res) => {
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
 
-        // Send conversationId first so client can track it
-        res.write(`data: ${JSON.stringify({ conversationId: conversation._id })}\n\n`);
+        res.write(`data: ${JSON.stringify({ conversationId: conversation._id, triage })}\n\n`);
 
         let fullResponse = '';
         for await (const chunk of stream) {
@@ -64,12 +94,11 @@ exports.sendMessage = async (req, res) => {
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
         }
 
-        // Save assistant message and update conversation
+        conversation.messages.push({ role: 'user', content: message });
         conversation.messages.push({ role: 'assistant', content: fullResponse });
         conversation.lastUpdated = Date.now();
         await conversation.save();
-        
-        // Invalidate cache
+
         if (redisClient) {
             await redisClient.del(`history:${req.user.id}`);
         }
@@ -78,7 +107,8 @@ exports.sendMessage = async (req, res) => {
         res.end();
 
     } catch (err) {
-        res.status(500).json({ success: false, error: 'AI Error', message: err.message });
+        console.error('Medical API Error:', err);
+        res.status(500).json({ success: false, error: 'Medical AI Error', message: err.message });
     }
 };
 

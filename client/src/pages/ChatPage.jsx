@@ -87,6 +87,16 @@ const ChatPage = () => {
         throw new Error(errorData.message || 'Failed to send message');
       }
 
+      // Handle Filtered (Irrelevant) Questions
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        if (data.isFiltered) {
+          setMessages(prev => [...prev, { role: 'assistant', content: data.message }]);
+          return;
+        }
+      }
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let assistantMessage = { role: 'assistant', content: '' };
