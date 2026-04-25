@@ -30,11 +30,14 @@ const ChatPage = () => {
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [history, setHistory] = useState([]);
   const [error, setError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const [deletingChatId, setDeletingChatId] = useState(null);
 
   const handleDeleteChat = async (e, id) => {
     e.stopPropagation();
+    if (isDeleting) return;
     
+    setIsDeleting(true);
     // Optimistic UI Update
     const previousHistory = [...history];
     setHistory(prev => prev.filter(chat => chat._id !== id));
@@ -45,8 +48,9 @@ const ChatPage = () => {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       
+      const data = await res.json();
+      
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.message || 'Failed to delete chat');
       }
 
@@ -55,15 +59,17 @@ const ChatPage = () => {
         setMessages([{ role: 'assistant', content: 'Hello! I am your Ethereal AI assistant. How can I help you today?' }]);
       }
       
-      // Still fetch history to ensure sync with server (and other tabs)
-      fetchHistory();
+      await fetchHistory();
       setDeletingChatId(null);
     } catch (err) {
       console.error('Delete error:', err);
       // Rollback on error
       setHistory(previousHistory);
       setError(err.message || 'Failed to delete chat');
+      alert(`Error: ${err.message}`); // Explicit feedback
       setDeletingChatId(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
