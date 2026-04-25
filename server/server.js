@@ -135,15 +135,13 @@ app.get('/', (req, res) => {
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
-    logger.error(`${err.name}: ${err.message}`, { 
-        id: req.id, 
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined 
-    });
-
+    logger.error(`${err.message} - ${req.originalUrl} - ${req.method} - ${req.id}`);
     res.status(500).json({
         success: false,
         error: 'Server Error',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'An internal error occurred. Request ID: ' + req.id
+        message: err.message,
+        stack: err.stack, // TEMPORARY: Exposing stack for root cause analysis
+        requestId: req.id
     });
 });
 
