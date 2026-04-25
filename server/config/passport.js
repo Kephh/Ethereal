@@ -20,16 +20,30 @@ module.exports = function (passport) {
                 };
 
                 try {
+                    // 1. Try finding by Google ID
                     let user = await User.findOne({ googleId: profile.id });
 
                     if (user) {
-                        done(null, user);
-                    } else {
-                        user = await User.create(newUser);
-                        done(null, user);
+                        return done(null, user);
                     }
+
+                    // 2. Try finding by Email (Account Linking)
+                    user = await User.findOne({ email: profile.emails[0].value });
+
+                    if (user) {
+                        // Link Google ID to existing account
+                        user.googleId = profile.id;
+                        if (!user.profilePhoto) user.profilePhoto = profile.photos[0].value;
+                        user.isVerified = true;
+                        await user.save();
+                        return done(null, user);
+                    }
+
+                    // 3. Create new user if neither exists
+                    user = await User.create(newUser);
+                    done(null, user);
                 } catch (err) {
-                    console.error(err);
+                    console.error('Passport Google Strategy Error:', err);
                     done(err, null);
                 }
             }
