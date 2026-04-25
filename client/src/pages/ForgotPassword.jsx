@@ -33,6 +33,19 @@ const ForgotPassword = () => {
         style={{ padding: '30px', width: '90%', maxWidth: '400px', display: 'flex', flexDirection: 'column', gap: '20px', zIndex: 1 }}
       >
         <h2 style={{ textAlign: 'center' }}>Reset Password</h2>
+        <div style={{ 
+          color: '#ffcc00', 
+          fontSize: '0.8rem', 
+          textAlign: 'center', 
+          background: 'rgba(255, 204, 0, 0.1)', 
+          padding: '10px', 
+          borderRadius: '8px', 
+          border: '1px solid rgba(255, 204, 0, 0.2)', 
+          marginBottom: '10px',
+          lineHeight: '1.4'
+        }}>
+          ⚠️ Password reset emails are currently delayed due to DNS verification. If you signed up via Google, please use <strong>Continue with Google</strong>.
+        </div>
         <p style={{ textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-dim)' }}>
           Enter your email and we'll send you a link to get back into your account.
         </p>
