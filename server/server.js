@@ -86,15 +86,22 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 
-// API Status Route
-app.get('/', (req, res) => {
-    res.json({ 
-        success: true, 
-        message: 'Ethereal AI API is running',
-        environment: process.env.NODE_ENV,
-        version: '1.0.0'
+// Serve Frontend in Production
+if (process.env.NODE_ENV === 'production') {
+    const clientPath = path.join(__dirname, '../client/dist');
+    app.use(express.static(clientPath));
+
+    app.get('/*splat', (req, res) => {
+        // Only serve index.html if not an API route
+        if (!req.path.startsWith('/api/')) {
+            res.sendFile(path.resolve(clientPath, 'index.html'));
+        }
     });
-});
+} else {
+    app.get('/', (req, res) => {
+        res.json({ message: 'Ethereal AI API is running' });
+    });
+}
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

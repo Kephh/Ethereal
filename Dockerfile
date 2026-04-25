@@ -1,21 +1,26 @@
-# Production Dockerfile (Root Level)
-FROM node:20-slim AS builder
+# Stage 1: Build Frontend
+FROM node:20-slim AS frontend-builder
+WORKDIR /app/client
+COPY client/package*.json ./
+RUN npm ci
+COPY client/ ./
+# Note: VITE_API_URL will default to /api for unified hosting
+RUN VITE_API_URL=/api npm run build
 
-WORKDIR /app
-# Copy server dependencies first for optimized layer caching
-COPY server/package*.json ./server/
-RUN cd server && npm ci
+# Stage 2: Build Backend
+FROM node:20-slim AS backend-builder
+WORKDIR /app/server
+COPY server/package*.json ./
+RUN npm ci
+COPY server/ ./
 
-# Copy the rest of the server code
-COPY server/ ./server/
-
-# Stage 2: Final Image
+# Stage 3: Final Image
 FROM node:20-slim
-
 WORKDIR /app
-# Copy only the built server code to keep the image small
-COPY --from=builder /app/server ./
+COPY --from=backend-builder /app/server ./server
+COPY --from=frontend-builder /app/client/dist ./client/dist
 
+WORKDIR /app/server
 ENV NODE_ENV=production
 EXPOSE 5000
 
