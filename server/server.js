@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const helmet = require('helmet');
+const logger = require('./config/logger');
 const rateLimit = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const redisClient = require('./config/redis');
@@ -52,7 +53,9 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Database Connection
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => logger.info('MongoDB Connected successfully to Atlas'))
+    .catch(err => logger.error('MongoDB Connection Error:', err));
 
 const path = require('path');
 
@@ -80,10 +83,15 @@ if (process.env.NODE_ENV === 'production') {
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
+    logger.error(`${err.name}: ${err.message}`, { 
+        id: req.id, 
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined 
+    });
+
     res.status(500).json({
         success: false,
         error: 'Server Error',
-        message: process.env.NODE_ENV === 'development' ? err.message : undefined
+        message: process.env.NODE_ENV === 'development' ? err.message : 'An internal error occurred. Check server logs with Request ID: ' + req.id
     });
 });
 
