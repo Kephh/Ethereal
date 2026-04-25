@@ -9,6 +9,7 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { token } = useParams();
 
@@ -16,13 +17,15 @@ const ResetPassword = () => {
     if (password !== confirmPassword) {
       return setError('Passwords do not match');
     }
-    setError('');
+    setLoading(true);
     try {
       await axios.put(`${import.meta.env.VITE_API_URL}/auth/resetpassword/${token}`, { password });
       setMessage('Password reset successful!');
       setTimeout(() => navigate('/auth'), 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to reset password');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,9 +62,18 @@ const ResetPassword = () => {
 
         <button
           onClick={handleSubmit}
-          style={{ background: 'var(--accent-primary)', border: 'none', padding: '14px', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+          disabled={loading || !password}
+          style={{ background: 'var(--accent-primary)', border: 'none', padding: '14px', color: 'white', borderRadius: '8px', cursor: (loading || !password) ? 'not-allowed' : 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: (loading || !password) ? 0.7 : 1 }}
         >
-          Reset Password
+          {loading ? (
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }}
+            />
+          ) : (
+            'Reset Password'
+          )}
         </button>
       </motion.div>
     </div>

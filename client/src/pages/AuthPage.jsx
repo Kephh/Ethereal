@@ -12,6 +12,7 @@ const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -23,7 +24,7 @@ const AuthPage = () => {
   }, []);
 
   const handleSubmit = async () => {
-    setError('');
+    setLoading(true);
     try {
       if (isRegistering) {
         await register(username, email, password);
@@ -34,6 +35,8 @@ const AuthPage = () => {
       window.location.href = '/';
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Authentication failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,9 +93,18 @@ const AuthPage = () => {
 
         <button
           onClick={handleSubmit}
-          style={{ background: 'var(--accent-primary)', border: 'none', padding: '14px', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+          disabled={loading}
+          style={{ background: 'var(--accent-primary)', border: 'none', padding: '14px', color: 'white', borderRadius: '8px', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: loading ? 0.7 : 1 }}
         >
-          {isRegistering ? 'Sign Up' : 'Login'}
+          {loading ? (
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }}
+            />
+          ) : (
+            isRegistering ? 'Sign Up' : 'Login'
+          )}
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '10px 0' }}>

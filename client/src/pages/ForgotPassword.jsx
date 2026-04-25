@@ -8,16 +8,18 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    setError('');
-    setMessage('');
+    setLoading(true);
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgotpassword`, { email });
       setMessage('Reset link sent! Please check your email.');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send reset link');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,9 +50,18 @@ const ForgotPassword = () => {
 
         <button
           onClick={handleSubmit}
-          style={{ background: 'var(--accent-primary)', border: 'none', padding: '14px', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+          disabled={loading || !email}
+          style={{ background: 'var(--accent-primary)', border: 'none', padding: '14px', color: 'white', borderRadius: '8px', cursor: (loading || !email) ? 'not-allowed' : 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', opacity: (loading || !email) ? 0.7 : 1 }}
         >
-          Send Reset Link
+          {loading ? (
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              style={{ width: '18px', height: '18px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }}
+            />
+          ) : (
+            'Send Reset Link'
+          )}
         </button>
 
         <p 
