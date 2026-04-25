@@ -55,6 +55,22 @@ const AuthPage = () => {
         </h2>
 
         {isRegistering && (
+          <div style={{ 
+            color: '#ffcc00', 
+            fontSize: '0.8rem', 
+            textAlign: 'center', 
+            background: 'rgba(255, 204, 0, 0.1)', 
+            padding: '10px', 
+            borderRadius: '8px', 
+            border: '1px solid rgba(255, 204, 0, 0.2)', 
+            marginBottom: '10px',
+            lineHeight: '1.4'
+          }}>
+            ⚠️ Registration is currently limited due to DNS verification. Please use <strong>Google Sign-In</strong> for instant access.
+          </div>
+        )}
+
+        {isRegistering && (
           <input
             className="glass-panel"
             placeholder="Username"
