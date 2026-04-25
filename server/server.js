@@ -11,6 +11,7 @@ const redisClient = require('./config/redis');
 const hpp = require('hpp');
 const passport = require('passport');
 const session = require('express-session');
+const RedisStore = require('connect-redis').default;
 
 // Passport Config
 require('./config/passport')(passport);
@@ -24,11 +25,18 @@ app.use((req, res, next) => {
     next();
 });
 
-// Express Session
+// Express Session with Redis
 app.use(session({
+    store: new RedisStore({ client: redisClient }),
     secret: process.env.SESSION_SECRET || 'secret',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    },
+    proxy: process.env.NODE_ENV === 'production' // Required for Render/Vercel proxies
 }));
 
 // Passport Middleware
