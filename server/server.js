@@ -106,8 +106,12 @@ const limiter = rateLimit({
     max: 500,
     message: 'Too many requests from this IP, please try again after 15 minutes',
     store: redisClient ? new RedisStore({
-        sendCommand: (...args) => redisClient.call(...args),
-    }) : undefined // Fallback to memory if Redis is not configured
+        // Fix: Use spread properly for Redis Cloud compatibility
+        sendCommand: async (...args) => {
+            const res = await redisClient.call(...args);
+            return res;
+        },
+    }) : undefined
 });
 app.use('/api/', limiter);
 
