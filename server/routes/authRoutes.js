@@ -35,8 +35,17 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback', 
     passport.authenticate('google', { failureRedirect: '/auth' }),
     (req, res) => {
-        const token = generateToken(req.user._id);
-        res.redirect(`${process.env.CLIENT_URL}/auth?token=${token}`);
+        try {
+            if (!req.user) {
+                console.error('Google Auth Success but no user object found');
+                return res.redirect('/auth?error=no_user');
+            }
+            const token = generateToken(req.user._id);
+            res.redirect(`${process.env.CLIENT_URL}/auth?token=${token}`);
+        } catch (err) {
+            console.error('OAuth Callback Error:', err);
+            res.redirect('/auth?error=server_error');
+        }
     }
 );
 

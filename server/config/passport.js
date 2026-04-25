@@ -12,10 +12,11 @@ module.exports = function (passport) {
             async (accessToken, refreshToken, profile, done) => {
                 const newUser = {
                     googleId: profile.id,
-                    username: profile.displayName,
+                    // Use a unique username by appending part of the Google ID
+                    username: `${profile.displayName.replace(/\s+/g, '').toLowerCase()}${profile.id.slice(-4)}`,
                     email: profile.emails[0].value,
                     profilePhoto: profile.photos[0].value,
-                    isVerified: true // Google accounts are pre-verified
+                    isVerified: true 
                 };
 
                 try {
